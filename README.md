@@ -2,9 +2,10 @@
 ## Set up
 1. Set up local mysql server
 2. Using MySQL cli, run `$mysql> source \this_repo\db\db.sql;`
-3. Run `npm install` on repo directory
-4. Run node app.js
-5. Server should now be running on `localhost:8000/`
+3. Modify MySQL credentials to `app.js` on line 27
+4. Run `npm install` on repo directory
+5. Run node app.js
+6. Server should now be running on `localhost:8000/`
 
 ## API Usage
 
