@@ -9,21 +9,21 @@
 
 ## API Usage
 
-####GET `/store`
+#### GET `/store`
 - store frontpage, fetches all products
 
-####GET `/store/details/{productId}`
+#### GET `/store/details/{productId}`
 - fetches details of a product with id of productId
 
-####GET `/store/add_to_cart/{productId}`
+#### GET `/store/add_to_cart/{productId}`
 - adds the product once to the cart
 
 **Note:**  If quantity of the product in the cart is equal to the inventory_count, adding that product again will no longer increment the quantity in the cart.
 
-####GET `/store/remove_from_cart/{productId}`
+#### GET `/store/remove_from_cart/{productId}`
 - removes the product once from the cart
 
-####GET `/store/cart`
+#### GET `/store/cart`
 - displays details of the cart
 
 Example Cart format:
@@ -47,7 +47,7 @@ Example Cart format:
 }
 ```
 
-####GET `/store/submit_cart`
+#### GET `/store/submit_cart`
 - submits the current cart and updates the database accordingly
 
 #### POST `/authenticate`
