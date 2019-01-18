@@ -36,8 +36,11 @@ app.use(function(req, res, next){
 });
 
 // routes
+app.get('/', function(req, res){
+	res.send('Congratulations! You made it!');
+})
 authRoutes.authRoutesConfig(app);
-app.use('/', storeRoutes);
+app.use('/store', storeRoutes);
 
 // 404 error handling
 app.use(function(req, res, next) {
