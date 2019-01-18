@@ -3,7 +3,7 @@ module.exports = function Cart(cart){
 	this.totalPrice = cart.totalPrice || '0';
 
 	// adding an item to the cart
-	this.add = function(id, product){
+	this.add = function(id, product, limit_inventory){
 		var cartItem = this.items[id];
 		// Increment cart details. If item doesn't exist in cart, add new entry
 		if(!cartItem){ 
@@ -11,8 +11,12 @@ module.exports = function Cart(cart){
 			product['itemPriceTotal'] = product.price;
 			this.items[id] = product;
 		} else {
-			cartItem.quantity++
-			cartItem.itemPriceTotal = cartItem.price * cartItem.quantity;
+			if(cartItem.quantity == limit_inventory){
+				throw "Not enough inventory"
+			} else {
+				cartItem.quantity++
+				cartItem.itemPriceTotal = cartItem.price * cartItem.quantity;
+			}
 		}
 		this.totalPrice = ((+this.totalPrice) + product.price).toFixed(2); // Rounds total price to 2 decimal places
 	}
