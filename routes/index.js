@@ -15,6 +15,18 @@ router.get('/', function(req, res){
 	})
 });
 
+// Retrieves details of a product
+router.get('/details/:productId', function(req, res){
+	const productId = req.params.productId;
+	res.locals.connection.query(`SELECT * FROM product WHERE id=${productId}`, function(err, results, fields){
+		if(err){
+			console.error(err);
+			res.sendStatus(500);
+		} else {
+			res.status(200).send(results);
+		}
+	});
+})
 
 // Adds a product to the cart
 router.get('/add_to_cart/:productId', function(req, res){
@@ -35,7 +47,9 @@ router.get('/add_to_cart/:productId', function(req, res){
 				res.sendStatus(200);
 			} catch (err){
 				console.error(err);
-				res.send('Not enough stock.');
+				res.json({
+					message: 'Not enough stock.'
+				});
 			}
 		}
 	})
