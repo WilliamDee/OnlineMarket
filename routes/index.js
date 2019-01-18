@@ -1,6 +1,7 @@
 var router = require('express').Router();
 
 var Cart = require('../models/cart');
+var validation = require('../authentication/validation');
 
 // Store homepage, retrieves all products from database
 router.get('/', function(req, res){
@@ -15,7 +16,7 @@ router.get('/', function(req, res){
 });
 
 
-// Adds a product with the given productId to the cart
+// Adds a product to the cart
 router.get('/add_to_cart/:productId', function(req, res){
 	const productId = req.params.productId;
 	var cart = new Cart(req.session.cart ? req.session.cart : {}); // retrieves current cart if it exists, else initiate a new cart
@@ -25,11 +26,17 @@ router.get('/add_to_cart/:productId', function(req, res){
 			res.sendStatus(500);
 		} else {
 			var productDetails = results[0];
+			const maxProductInventory = productDetails.inventory_count;
 			delete productDetails.id;
 			delete productDetails.inventory_count;
-			cart.add(productId, productDetails); // Adds the selected product to the cart
-			req.session.cart = cart; // Update current cart with the updated cart
-			res.sendStatus(200);
+			try{
+				cart.add(productId, productDetails, maxProductInventory); // Adds the selected product to the cart	
+				req.session.cart = cart; // Update current cart with the updated cart
+				res.sendStatus(200);
+			} catch (err){
+				console.error(err);
+				res.send('Not enough stock.');
+			}
 		}
 	})
 });
@@ -49,9 +56,18 @@ router.get('/get_cart', function(req, res){
 	res.send(cart);
 });
 
-// adds a new product entry to the database
-router.post('/add_product', function(req, res){
-	var newProduct = req.body;
+/* 
+adds a new product entry to the database
+post data should be in JSON format:
+ex.
+	{
+		title : 'New Product',
+		price : 10.14
+		inventory_count : 12
+	}
+*/
+router.post('/add_product', validation.validateJWT, function(req, res){ // JWT token required to make request
+	const newProduct = req.body;
 
 	res.locals.connection.query(`INSERT INTO product (title, price, inventory_count) VALUES ("${newProduct.title}", ${newProduct.price}, ${newProduct.inventory_count});`, function(err, results, fields){
 		if(err){
@@ -62,8 +78,51 @@ router.post('/add_product', function(req, res){
 			res.status(200);
 		}
 		res.redirect('/'); // redirects back the homepage
-	})
+	});
 });
 
+/*
+increase inventory_count of a product
+put data should be in JSON format:
+ex.
+	{
+		title : 'Update Product',
+		add_amount : 10
+	}
+*/
+router.put('/add_product_inventory', validation.validateJWT, function(req, res){ // JWT token required to make request
+	const productName = req.body.title;
+	const add_amount = req.body.add_amount;
+
+	res.locals.connection.query(`UPDATE product SET inventory_count=inventory_count+${add_amount} WHERE title="${productName}"`, function(err, results, fields){
+		if(err){
+			console.error(err);
+			res.status(500);
+		} else {
+			console.log(`Successfully add ${add_amount} to "${productName}"`);
+			res.status(200);
+		}
+		res.redirect('/');
+	});
+})
+
+// submit the current cart
+router.get('/submit_cart', function(req, res){
+	var cart = new Cart(req.session.cart ? req.session.cart : {});
+	if(!cart){
+		res.sendStatus(200);
+	}
+
+	// Update the inventory_count of each item that is in the cart
+	for(id in cart.items){
+		var item = cart.items[id];
+		res.locals.connection.query(`UPDATE product SET inventory_count = inventory_count - ${item.quantity} WHERE id = ${id}`), function(err, results, fields){
+			console.log('updated item inventory');
+		}
+	}
+
+	req.session.cart = undefined;
+	res.status(200).redirect('/');
+})
 
 module.exports = router;
