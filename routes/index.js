@@ -77,7 +77,7 @@ router.post('/add_product', validation.validateJWT, function(req, res){ // JWT t
 			console.log("Successfully inserted new product into table");
 			res.status(200);
 		}
-		res.redirect('/'); // redirects back the homepage
+		res.redirect('/store'); // redirects back the homepage
 	});
 });
 
@@ -102,7 +102,7 @@ router.put('/add_product_inventory', validation.validateJWT, function(req, res){
 			console.log(`Successfully add ${add_amount} to "${productName}"`);
 			res.status(200);
 		}
-		res.redirect('/');
+		res.redirect('/store');
 	});
 })
 
@@ -122,7 +122,7 @@ router.get('/submit_cart', function(req, res){
 	}
 
 	req.session.cart = undefined;
-	res.status(200).redirect('/');
+	res.status(200).redirect('/store');
 })
 
 module.exports = router;

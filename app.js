@@ -38,7 +38,7 @@ app.use(function(req, res, next){
 // routes
 app.get('/', function(req, res){
 	res.send('Congratulations! You made it!');
-})
+});
 authRoutes.authRoutesConfig(app);
 app.use('/store', storeRoutes);
 
