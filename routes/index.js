@@ -65,7 +65,7 @@ router.get('/remove_from_cart/:productId', function(req, res){
 });
 
 // retrieves current cart details
-router.get('/get_cart', function(req, res){
+router.get('/cart', function(req, res){
 	var cart = new Cart(req.session.cart? req.session.cart : {}) // retrieves current cart if it exists, else initiate a new cart
 	res.send(cart);
 });
